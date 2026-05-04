@@ -25,7 +25,7 @@ vectors = cv.fit_transform(df['tags']).toarray()
 similarity = cosine_similarity(vectors)
 
 # 4. UI Layout
-st.title('🎬 Movie Recommendation System')
+st.title('🎬 My Movie Recommender')
 
 selected_movie = st.selectbox('Select a movie you liked:', df['title'].values)
 
