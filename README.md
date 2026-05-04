@@ -32,8 +32,10 @@ Data Source: The Movie Database (TMDb) API
 # How to Run locally
 
 1. Clone this repository.
-2. Install the required libraries using `pip install -r requirements.txt`.
-3. Run the Streamlit app with `streamlit run src/app.py`.
+2. Create a virtual environment with `python -m venv venv`.
+3. Activate the environment with `.\venv\Scripts\activate`.
+4. Install the required libraries using `pip install -r requirements.txt`.
+5. Run the Streamlit app with `streamlit run src/app.py`.
 
 # Project Structure
 
