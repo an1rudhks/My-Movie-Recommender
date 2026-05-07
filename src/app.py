@@ -18,7 +18,6 @@ FALLBACK_POSTER = "https://via.placeholder.com/300x450.png?text=No+Image"
 def load_data():
     df = pd.read_csv("data/movies_data.csv")
 
-    # Clean data
     df["poster_url"] = df["poster_url"].fillna("").astype(str).str.strip()
     df["title"] = df["title"].astype(str).str.strip()
     df["tags"] = df["tags"].fillna("")
@@ -30,7 +29,7 @@ df = load_data()
 
 
 # =========================================================
-# 3. AI LOGIC (TEXT VECTORIZATION + SIMILARITY)
+# 3. AI ENGINE (TEXT VECTORIZATION + SIMILARITY)
 # =========================================================
 @st.cache_resource
 def compute_similarity(df):
@@ -97,13 +96,26 @@ if st.button("Show Recommendations"):
     recommended_movies = []
     recommended_posters = []
 
-    for i in range(1, 6):
-        idx = distances[i][0]
+    # Start from 1 to skip itself AND ensure uniqueness
+    for i in distances:
+        idx = i[0]
+        title = df.iloc[idx].title
 
-        recommended_movies.append(df.iloc[idx].title)
+        # Skip selected movie
+        if title == selected_movie:
+            continue
+
+        # Avoid duplicates
+        if title in recommended_movies:
+            continue
+
+        recommended_movies.append(title)
         recommended_posters.append(
             safe_image(df.iloc[idx].poster_url)
         )
+
+        if len(recommended_movies) == 5:
+            break
 
 
     # =====================================================
