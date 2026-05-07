@@ -1,47 +1,120 @@
+# =========================================================
+# 1. PAGE CONFIGURATION
+# =========================================================
 import streamlit as st
 import pandas as pd
-import requests
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# 1. Page Configuration (Browser Tab)
 st.set_page_config(page_title="My Movie Recommender", layout="wide")
 
-# 2. Function to fetch posters
-def fetch_poster(movie_id):
-    try:
-        url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=8265bd1679663a7ea12ac168da84d2e8"
-        data = requests.get(url, timeout=5).json()
-        return "https://image.tmdb.org/t/p/w500/" + data['poster_path']
-    except:
-        return "https://via.placeholder.com/500x750.png?text=Poster+Unavailable"
+FALLBACK_POSTER = "https://via.placeholder.com/300x450.png?text=No+Image"
 
-# 3. Load Data & AI Math
-df = pd.read_csv('data/movies_data.csv')
 
-# Vectorization: Turning words into numbers
-cv = CountVectorizer(max_features=5000, stop_words='english')
-vectors = cv.fit_transform(df['tags']).toarray()
-similarity = cosine_similarity(vectors)
+# =========================================================
+# 2. LOAD DATA
+# =========================================================
+@st.cache_resource
+def load_data():
+    df = pd.read_csv("data/movies_data.csv")
 
-# 4. UI Layout
-st.title('🎬 My Movie Recommender')
+    # Clean data
+    df["poster_url"] = df["poster_url"].fillna("").astype(str).str.strip()
+    df["title"] = df["title"].astype(str).str.strip()
+    df["tags"] = df["tags"].fillna("")
 
-selected_movie = st.selectbox('Select a movie you liked:', df['title'].values)
+    return df
 
-if st.button('Show Recommendations'):
-    index = df[df['title'] == selected_movie].index[0]
-    distances = sorted(list(enumerate(similarity[index])), reverse=True, key=lambda x: x[1])
-    
-    st.subheader("Recommendations")
-    cols = st.columns(5)
-    
-    # Get top 5 matches
+
+df = load_data()
+
+
+# =========================================================
+# 3. AI LOGIC (TEXT VECTORIZATION + SIMILARITY)
+# =========================================================
+@st.cache_resource
+def compute_similarity(df):
+    cv = CountVectorizer(max_features=5000, stop_words="english")
+    vectors = cv.fit_transform(df["tags"]).toarray()
+    similarity = cosine_similarity(vectors)
+    return similarity
+
+
+similarity = compute_similarity(df)
+
+
+# =========================================================
+# 4. HELPER FUNCTION (SAFE IMAGE)
+# =========================================================
+def safe_image(url):
+    if isinstance(url, str) and url.startswith("http"):
+        return url
+    return FALLBACK_POSTER
+
+
+# =========================================================
+# 5. UI - INPUT SECTION
+# =========================================================
+st.title("🎬 My Movie Recommender")
+
+selected_movie = st.selectbox(
+    "Select a movie you like:",
+    df["title"].values
+)
+
+
+# =========================================================
+# 6. SELECTED MOVIE DISPLAY
+# =========================================================
+movie_data = df[df["title"] == selected_movie].iloc[0]
+movie_poster = safe_image(movie_data["poster_url"])
+
+st.markdown("---")
+st.subheader("Selected Movie")
+
+col1, col2 = st.columns([1, 3])
+
+with col1:
+    st.image(movie_poster, width=180)
+
+with col2:
+    st.markdown(f"### {selected_movie}")
+
+
+# =========================================================
+# 7. RECOMMENDATION ENGINE
+# =========================================================
+if st.button("Show Recommendations"):
+
+    index = df[df["title"] == selected_movie].index[0]
+
+    distances = sorted(
+        list(enumerate(similarity[index])),
+        reverse=True,
+        key=lambda x: x[1]
+    )
+
+    recommended_movies = []
+    recommended_posters = []
+
     for i in range(1, 6):
         idx = distances[i][0]
-        m_id = df.iloc[idx].movie_id
-        name = df.iloc[idx].title
-        
-        with cols[i-1]:
-            st.image(fetch_poster(m_id))
-            st.write(name)
+
+        recommended_movies.append(df.iloc[idx].title)
+        recommended_posters.append(
+            safe_image(df.iloc[idx].poster_url)
+        )
+
+
+    # =====================================================
+    # 8. OUTPUT SECTION
+    # =====================================================
+    st.markdown("---")
+    st.subheader("Recommended Movies")
+
+    cols = st.columns(5)
+
+    for i in range(5):
+        with cols[i]:
+            st.image(recommended_posters[i], use_container_width=True)
+            st.write(recommended_movies[i])
