@@ -22,11 +22,11 @@ Content-Based Filtering: Recommending items based on the attributes (tags) of th
 
 Language: Python
 
-Libraries: Pandas (Data manipulation), Scikit-Learn (Vectorization & Similarity), Requests (API handling)
+Libraries: Pandas (Data manipulation), Scikit-learn (Vectorization & Similarity)
 
 Frontend: Streamlit
 
-Data Source: The Movie Database (TMDb) API
+Data Source: Pre-collected Movie Dataset with TMDb Poster URLs
 
 
 # How to Run locally
