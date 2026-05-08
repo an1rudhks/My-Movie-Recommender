@@ -50,6 +50,6 @@ my-movie-recommender/
 ├── src/
 │   └── app.py                       # Main Streamlit application code
 ├── .gitignore
-├── LICENSE                          # Open-source license file
+├── LICENSE                          # MIT License
 ├── requirements.txt                 # List of Python dependencies
 └── README.md                        # Project documentation
