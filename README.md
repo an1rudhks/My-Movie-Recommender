@@ -42,11 +42,14 @@ Data Source: Pre-collected Movie Dataset with TMDb Poster URLs
 ```
 my-movie-recommender/
 ├── data/
-│   └── movies_data.csv       # Raw movie dataset
+│   └── movies_data.csv              # Raw movie dataset
 ├── notebooks/
-│   └── movie_engine.ipynb    # Step-by-step research and logic testing
+│   └── movie_engine.ipynb           # Step-by-step research and logic testing
+├── reports/
+│   └── term_project1_report.pdf     # Term project report
 ├── src/
-│   └── app.py                # Main Streamlit application code
-├── .gitignore                
-├── requirements.txt          # List of Python dependencies
-└── README.md                 # Project documentation
+│   └── app.py                       # Main Streamlit application code
+├── .gitignore
+├── LICENSE                          # Open-source license file
+├── requirements.txt                 # List of Python dependencies
+└── README.md                        # Project documentation
